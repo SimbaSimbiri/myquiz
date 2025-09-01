@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.netty) // a ktor traffic controller that manages incoming and outgoing requests
     implementation(libs.logback.classic)
+    implementation(libs.ktor.server.call.logging)
 
     implementation(libs.mongo.driver.kotlin)
 

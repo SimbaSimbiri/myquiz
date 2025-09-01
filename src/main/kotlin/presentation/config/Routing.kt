@@ -1,6 +1,8 @@
 package com.simbiri.presentation.config
 
+import com.simbiri.domain.model.QuizQuestion
 import com.simbiri.presentation.routes.quiz_question.getAllQuizQuestions
+import com.simbiri.presentation.routes.quiz_question.upsertQuizQuestion
 import com.simbiri.presentation.routes.root
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -13,6 +15,9 @@ fun Application.configureRouting(){
         // with or receive data depending on whether the request was a get or post
         root()
         getAllQuizQuestions()
+        upsertQuizQuestion()
     }
 
 }
+
+val quizQuestionsList = mutableListOf<QuizQuestion>()
