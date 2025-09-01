@@ -1,5 +1,8 @@
 package com.simbiri.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class QuizTopic(
     val id: String? = null,
     val name: String,
