@@ -13,8 +13,20 @@ fun Route.getAllQuizQuestions() {
         // we use query params (optional) to filter our results as needed
         val topicCode = call.queryParameters["topicCode"]?.toIntOrNull()
         val limit = call.queryParameters["limit"]?.toIntOrNull()
-        val filteredResult = quizQuestionsList.filter { it.topicCode == topicCode }.take(limit ?: 1)
+        // if we have valid topicCode filter by it, else only use the limit filter
+        // if limit is null just return the whole list
+        val filteredResult = if (topicCode != null) {
+            quizQuestionsList.
+            filter{ it.topicCode == topicCode }.
+            take(limit ?: quizQuestionsList.size)
+        } else {
+            quizQuestionsList.take(limit ?: quizQuestionsList.size)
+        }
 
-        call.respond(filteredResult)
+        if (filteredResult.isNotEmpty()) {
+            call.respond(message = filteredResult, status = HttpStatusCode.OK)
+        } else {
+            call.respond(message = "Questions not found with the specified params", status = HttpStatusCode.NotFound)
+        }
     }
 }
