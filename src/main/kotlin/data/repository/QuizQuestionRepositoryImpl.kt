@@ -9,6 +9,8 @@ import com.simbiri.data.database.mapper.toQuizQuestionEntity
 import com.simbiri.data.util.Constants.QUESTION_COLLECTION
 import com.simbiri.domain.model.QuizQuestion
 import com.simbiri.domain.repository.QuizQuestionRepository
+import com.simbiri.domain.util.DataError
+import com.simbiri.domain.util.ResultType
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -21,8 +23,8 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
     // we will use the collection from our db to store our quiz_questions and in our crud ops
     private val questionCollection = mongoDatabase.getCollection<QuizQuestionEntity>(QUESTION_COLLECTION)
 
-    override suspend fun upsertQuizQuestion(questionRec: QuizQuestion) {
-        try {
+    override suspend fun upsertQuizQuestion(questionRec: QuizQuestion): ResultType<Unit, DataError> {
+        return try {
             // if the questionRec provided lacks an id, we know we are uploading it for the first time
             if (questionRec.id == null) {
                 questionCollection.insertOne(questionRec.toQuizQuestionEntity())
@@ -35,68 +37,94 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
                     Updates.set(QuizQuestionEntity::incorrectAnswers.name, questionRec.incorrectAnswers),
                     Updates.set(QuizQuestionEntity::explanation.name, questionRec.explanation),
                     Updates.set(QuizQuestionEntity::topicCode.name, questionRec.topicCode),
-                    )
-                questionCollection.updateOne(filter= filterQuery, update= updateQuery)
+                )
+                val updatedResult = questionCollection.updateOne(filter = filterQuery, update = updateQuery)
+                // if nothing was updated, return not found error
+                if (updatedResult.modifiedCount == 0L) {
+                    return ResultType.Failure(DataError.NotFound)
+                }
             }
+            // if the code reached here, successful update/upload was done and no DataError was returned
+            ResultType.Success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
+            ResultType.Failure(DataError.DatabaseError)
         }
     }
 
     override suspend fun getAllQuestions(
         topicCode: Int?,
         limit: Int?
-    ): List<QuizQuestion> {
+    ): ResultType<List<QuizQuestion>, DataError> {
         // if we have valid topicCode filter by it, else only use the limit filter
         // if limit is null just return the whole list
         return try {
-            val filterQuery = topicCode?.let{
+            val filterQuery = topicCode?.let {
                 Filters.eq(QuizQuestionEntity::topicCode.name, it)
-            } ?:Filters.empty() // if topicCode is null we don't need to filter anything
+            } ?: Filters.empty() // if topicCode is null we don't need to filter anything
 
             // if the limit is invalid/empty, we assign the value to the right of the elvis
             val questionLimit = limit?.takeIf { it > 0 } ?: 10
 
-            questionCollection
+            val questions = questionCollection
                 .find(filter = filterQuery)
                 .limit(questionLimit)
-                .map{it.toQuizQuestion()}
+                .map { it.toQuizQuestion() }
                 .toList()
 
-        } catch (e: Exception){
+            if (questions.isNotEmpty()) ResultType.Success(questions)
+            else ResultType.Failure(DataError.NotFound)
+
+        } catch (e: Exception) {
             e.printStackTrace()
-            emptyList()
+            ResultType.Failure(DataError.DatabaseError)
         }
     }
 
-    override suspend fun getQuestionById(questionId: String): QuizQuestion? {
+    override suspend fun getQuestionById(questionId: String?): ResultType<QuizQuestion, DataError> {
+        if (questionId.isNullOrBlank()) {
+            return ResultType.Failure(DataError.ValidationError)
+        }
 
         return try {
             val filterQuery = Filters.eq(
                 QuizQuestionEntity::_id.name, questionId
             )
             // our filtered result will be a list so we just extract the first item
-            val questionEntity = questionCollection.find(filter= filterQuery).firstOrNull()
-            questionEntity?.toQuizQuestion()
+            val questionEntity = questionCollection.find(filter = filterQuery).firstOrNull()
+            // find can result in an empty result hence we need to check the result type
+            if (questionEntity != null) {
+                val question = questionEntity.toQuizQuestion()
+                ResultType.Success(question)
+            } else {
+                ResultType.Failure(DataError.NotFound)
+            }
         } catch (e: Exception) {
-          e.printStackTrace()
-          null
+            e.printStackTrace()
+            ResultType.Failure(DataError.DatabaseError)
         }
     }
 
 
-    override suspend fun deleteQuizQuestionById(questionId: String): Boolean {
+    override suspend fun deleteQuizQuestionById(questionId: String?): ResultType<Unit, DataError> {
         // removeIf returns a boolean if object is found and deleted
+        if (questionId.isNullOrBlank()) {
+            return ResultType.Failure(DataError.ValidationError)
+        }
         return try {
             val filterQuery = Filters.eq(
                 QuizQuestionEntity::_id.name, questionId
             )
-            val delResult = questionCollection.deleteOne(filter= filterQuery)
-            delResult.deletedCount  > 0
+            val delResult = questionCollection.deleteOne(filter = filterQuery)
 
-        } catch (e: Exception){
+            return if (delResult.deletedCount > 0L){
+                ResultType.Success(Unit)
+            } else {
+                ResultType.Failure(DataError.NotFound)
+            }
+        } catch (e: Exception) {
             e.printStackTrace()
-            false
+            ResultType.Failure(DataError.DatabaseError)
         }
     }
 }
