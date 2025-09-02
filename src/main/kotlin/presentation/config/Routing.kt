@@ -1,7 +1,9 @@
 package com.simbiri.presentation.config
 
 import com.simbiri.domain.model.QuizQuestion
+import com.simbiri.presentation.routes.quiz_question.deleteQuizQuestionById
 import com.simbiri.presentation.routes.quiz_question.getAllQuizQuestions
+import com.simbiri.presentation.routes.quiz_question.getQuizQuestionById
 import com.simbiri.presentation.routes.quiz_question.upsertQuizQuestion
 import com.simbiri.presentation.routes.root
 import io.ktor.server.application.*
@@ -16,6 +18,8 @@ fun Application.configureRouting(){
         root()
         getAllQuizQuestions()
         upsertQuizQuestion()
+        deleteQuizQuestionById()
+        getQuizQuestionById()
     }
 
 }
