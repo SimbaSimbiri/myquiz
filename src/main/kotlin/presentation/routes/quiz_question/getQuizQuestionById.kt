@@ -10,9 +10,9 @@ import io.ktor.server.routing.*
 
 fun Route.getQuizQuestionById(quizRepository: QuizQuestionRepository) {
     get(path = "/quiz/questions/{questionId}") {
-        val id = call.parameters["questionId"]
+        val questionId = call.parameters["questionId"]
 
-        quizRepository.getQuestionById(id)
+        quizRepository.getQuestionById(questionId)
             .onSuccess { question ->
                 call.respond(message = question, status = HttpStatusCode.OK)
             }

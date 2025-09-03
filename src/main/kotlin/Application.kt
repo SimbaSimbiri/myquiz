@@ -3,6 +3,8 @@ package com.simbiri
 import com.simbiri.presentation.config.configureLogging
 import com.simbiri.presentation.config.configureRouting
 import com.simbiri.presentation.config.configureSerialization
+import com.simbiri.presentation.config.configureStatusPages
+import com.simbiri.presentation.config.configureValidation
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -13,4 +15,6 @@ fun Application.module() {
     configureLogging()
     configureSerialization()
     configureRouting()
+    configureValidation()
+    configureStatusPages()
 }

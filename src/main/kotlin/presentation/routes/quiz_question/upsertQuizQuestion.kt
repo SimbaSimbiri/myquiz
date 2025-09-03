@@ -10,13 +10,14 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.upsertQuizQuestion(quizRepository : QuizQuestionRepository) { // post (insert) and put/patch (update) to the db can often be one operation
+fun Route.upsertQuizQuestion(quizRepository : QuizQuestionRepository) {
+    // post (insert) and put/patch (update) to the db can often be one operation
     post(path = "/quiz/questions") {
         val questionRec = call.receive<QuizQuestion>()
         quizRepository.upsertQuizQuestion(questionRec)
             .onSuccess {
                 call.respond(
-                    message = "Question added successfully and server memory updated",
+                    message = "Question added successfully to the MongoDB quiz collection",
                     status = HttpStatusCode.Created
                 )
             }

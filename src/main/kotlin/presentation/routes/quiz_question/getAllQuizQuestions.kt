@@ -16,8 +16,8 @@ fun Route.getAllQuizQuestions(quizRepository: QuizQuestionRepository) {
         val limit = call.queryParameters["limit"]?.toIntOrNull()
 
         quizRepository.getAllQuestions(topicCode, limit)
-            .onSuccess { questions ->
-                call.respond(message = questions, status = HttpStatusCode.OK)
+            .onSuccess { questionList ->
+                call.respond(message = questionList, status = HttpStatusCode.OK)
             }
             .onFailure { error ->
                 respondWithError(error)

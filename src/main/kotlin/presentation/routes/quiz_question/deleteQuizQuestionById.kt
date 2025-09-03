@@ -13,9 +13,9 @@ fun Route.deleteQuizQuestionById(quizRepository: QuizQuestionRepository) {
         val id = call.parameters["questionId"] // We use a request param to get a specific question with specific id
 
         quizRepository.deleteQuizQuestionById(id)
-            .onSuccess { question ->
+            .onSuccess {
                 // for successful deletes we usually return no content and the code 204
-                call.respond(message = "Question removed successfully", status = HttpStatusCode.NoContent)
+                call.respond(message = "Question with id $id removed successfully", status = HttpStatusCode.NoContent)
             }
             .onFailure { error ->
                 respondWithError(error)

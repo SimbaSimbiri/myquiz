@@ -30,7 +30,7 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
                 questionCollection.insertOne(questionRec.toQuizQuestionEntity())
             } else {
                 val filterQuery = Filters.eq(QuizQuestionEntity::_id.name, questionRec.id)
-                // we use our update combine query to update all the fields of the document found after filterinb
+                // we use our update combine query to update all the fields of the document found after filtering
                 val updateQuery = Updates.combine(
                     Updates.set(QuizQuestionEntity::question.name, questionRec.question),
                     Updates.set(QuizQuestionEntity::correctAnswer.name, questionRec.correctAnswer),
@@ -39,8 +39,8 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
                     Updates.set(QuizQuestionEntity::topicCode.name, questionRec.topicCode),
                 )
                 val updatedResult = questionCollection.updateOne(filter = filterQuery, update = updateQuery)
-                // if nothing was updated, return not found error
-                if (updatedResult.modifiedCount == 0L) {
+                // if no match was found, hence nothing updated, return not found error
+                if (updatedResult.matchedCount == 0L) {
                     return ResultType.Failure(DataError.NotFound)
                 }
             }
@@ -52,18 +52,16 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
         }
     }
 
-    override suspend fun getAllQuestions(
-        topicCode: Int?,
-        limit: Int?
-    ): ResultType<List<QuizQuestion>, DataError> {
+    override suspend fun getAllQuestions(topicCode: Int?, limit: Int?): ResultType<List<QuizQuestion>, DataError> {
         // if we have valid topicCode filter by it, else only use the limit filter
         // if limit is null just return the whole list
         return try {
-            val filterQuery = topicCode?.let {
+            val filterQuery = topicCode?.let {it ->
                 Filters.eq(QuizQuestionEntity::topicCode.name, it)
             } ?: Filters.empty() // if topicCode is null we don't need to filter anything
 
-            // if the limit is invalid/empty, we assign the value to the right of the elvis
+            // if the limit doesn't satisfy the predicate it becomes null,
+            // then we assign the value to the right of the elvis
             val questionLimit = limit?.takeIf { it > 0 } ?: 10
 
             val questions = questionCollection
@@ -76,12 +74,15 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
             else ResultType.Failure(DataError.NotFound)
 
         } catch (e: Exception) {
+            // this caught exception can only be due to an internal MongoDB error
+            // that occurred when doing the filterQuery or when mapping them to list
             e.printStackTrace()
             ResultType.Failure(DataError.DatabaseError)
         }
     }
 
     override suspend fun getQuestionById(questionId: String?): ResultType<QuizQuestion, DataError> {
+        // we first check for the validity of the 'questionId' param passed in
         if (questionId.isNullOrBlank()) {
             return ResultType.Failure(DataError.ValidationError)
         }
@@ -90,7 +91,7 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
             val filterQuery = Filters.eq(
                 QuizQuestionEntity::_id.name, questionId
             )
-            // our filtered result will be a list so we just extract the first item
+            // our filtered result will be a list so we just extract the first item, or get null if empty
             val questionEntity = questionCollection.find(filter = filterQuery).firstOrNull()
             // find can result in an empty result hence we need to check the result type
             if (questionEntity != null) {
@@ -107,7 +108,7 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
 
 
     override suspend fun deleteQuizQuestionById(questionId: String?): ResultType<Unit, DataError> {
-        // removeIf returns a boolean if object is found and deleted
+        // check for request param validation
         if (questionId.isNullOrBlank()) {
             return ResultType.Failure(DataError.ValidationError)
         }
@@ -123,6 +124,8 @@ class QuizQuestionRepositoryImpl(mongoDatabase: MongoDatabase) : QuizQuestionRep
                 ResultType.Failure(DataError.NotFound)
             }
         } catch (e: Exception) {
+            // this caught exception can only be due to an internal MongoDB error
+            // that occurred when doing the filterQuery and deleting the document
             e.printStackTrace()
             ResultType.Failure(DataError.DatabaseError)
         }
