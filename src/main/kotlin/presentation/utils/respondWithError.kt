@@ -15,7 +15,7 @@ suspend fun RoutingContext.respondWithError(error: DataError) {
         }
         DataError.NotFound -> {
             call.respond(
-                message = "The specified resource with the id was not found",
+                message = "The specified resource was not found",
                 status = HttpStatusCode.NotFound
             )
         }
