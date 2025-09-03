@@ -5,14 +5,14 @@ import com.simbiri.domain.util.onFailure
 import com.simbiri.domain.util.onSuccess
 import com.simbiri.presentation.utils.respondWithError
 import io.ktor.http.*
+import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.getQuizQuestionById(quizRepository: QuizQuestionRepository) {
-    get(path = "/quiz/questions/{questionId}") {
-        val questionId = call.parameters["questionId"]
+    get<QuizQuestionRoutesPath.ById>{path ->
 
-        quizRepository.getQuestionById(questionId)
+        quizRepository.getQuestionById(path.questionId)
             .onSuccess { question ->
                 call.respond(message = question, status = HttpStatusCode.OK)
             }

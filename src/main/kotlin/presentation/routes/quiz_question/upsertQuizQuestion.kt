@@ -8,11 +8,13 @@ import com.simbiri.presentation.utils.respondWithError
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.routing.Route
+import io.ktor.server.resources.post
 
-fun Route.upsertQuizQuestion(quizRepository : QuizQuestionRepository) {
+fun Route.upsertQuizQuestion(quizRepository: QuizQuestionRepository) {
     // post (insert) and put/patch (update) to the db can often be one operation
-    post(path = "/quiz/questions") {
+    post<QuizQuestionRoutesPath> {
+
         val questionRec = call.receive<QuizQuestion>()
         quizRepository.upsertQuizQuestion(questionRec)
             .onSuccess {
@@ -21,7 +23,7 @@ fun Route.upsertQuizQuestion(quizRepository : QuizQuestionRepository) {
                     status = HttpStatusCode.Created
                 )
             }
-            .onFailure {error ->
+            .onFailure { error ->
                 respondWithError(error)
             }
 

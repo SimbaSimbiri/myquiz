@@ -10,10 +10,12 @@ import com.simbiri.presentation.routes.quiz_question.getQuizQuestionById
 import com.simbiri.presentation.routes.quiz_question.upsertQuizQuestion
 import com.simbiri.presentation.routes.root
 import io.ktor.server.application.*
+import io.ktor.server.resources.*
 import io.ktor.server.routing.*
-import javax.xml.crypto.Data
 
 fun Application.configureRouting(){
+    // we install the Resource plugin here which we used for type safe routing
+    install(Resources)
     val mongoDatabase: MongoDatabase  = DatabaseFactory.create()
     val quizRepository : QuizQuestionRepository = QuizQuestionRepositoryImpl(mongoDatabase)
     // routes tell our server what data to return once a specific endpoint is hit
