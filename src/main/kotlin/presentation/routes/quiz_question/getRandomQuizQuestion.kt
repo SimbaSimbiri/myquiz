@@ -9,11 +9,11 @@ import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.getAllQuizQuestions(quizRepository: QuizQuestionRepository) {
-    get<QuizQuestionRoutesPath> { path ->
+fun Route.getRandomQuizQuestions(quizRepository: QuizQuestionRepository) {
+    get<QuizQuestionRoutesPath.Random> { path ->
         // we use query params (optional) to filter our results as needed
 
-        quizRepository.getAllQuestions(path.topicCode)
+        quizRepository.getRandomQuestions(path.topicCode, path.limit)
             .onSuccess { questionList ->
                 call.respond(message = questionList, status = HttpStatusCode.OK)
             }

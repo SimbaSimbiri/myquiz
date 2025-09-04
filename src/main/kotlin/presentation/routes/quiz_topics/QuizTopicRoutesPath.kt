@@ -4,7 +4,7 @@ import io.ktor.resources.Resource
 
 @Resource("/quiz/topics")
 class QuizTopicRoutesPath {
-    @Resource("/{topicId}")
+    @Resource("{topicId}")
     data class ById(
         val parent: QuizTopicRoutesPath = QuizTopicRoutesPath(),
         val topicId : String?

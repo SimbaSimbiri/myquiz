@@ -9,6 +9,8 @@ import com.simbiri.presentation.routes.issue_reports.insertIssueReport
 import com.simbiri.presentation.routes.quiz_question.deleteQuizQuestionById
 import com.simbiri.presentation.routes.quiz_question.getAllQuizQuestions
 import com.simbiri.presentation.routes.quiz_question.getQuizQuestionById
+import com.simbiri.presentation.routes.quiz_question.getRandomQuizQuestions
+import com.simbiri.presentation.routes.quiz_question.insertQuestionsInBulk
 import com.simbiri.presentation.routes.quiz_question.upsertQuizQuestion
 import com.simbiri.presentation.routes.quiz_topics.deleteQuizTopicById
 import com.simbiri.presentation.routes.quiz_topics.getAllQuizTopics
@@ -38,7 +40,9 @@ fun Application.configureRouting(){
 
         //Quiz Questions
         getAllQuizQuestions(quizRepository)
+        getRandomQuizQuestions(quizRepository)
         upsertQuizQuestion(quizRepository)
+        insertQuestionsInBulk(quizRepository)
         deleteQuizQuestionById(quizRepository)
         getQuizQuestionById(quizRepository)
 
