@@ -3,25 +3,15 @@ package com.simbiri.presentation.config
 import com.simbiri.domain.repository.IssueReportRepository
 import com.simbiri.domain.repository.QuizQuestionRepository
 import com.simbiri.domain.repository.QuizTopicRepository
-import com.simbiri.presentation.routes.issue_reports.deleteIssueReportById
-import com.simbiri.presentation.routes.issue_reports.getAllIssueReports
-import com.simbiri.presentation.routes.issue_reports.insertIssueReport
-import com.simbiri.presentation.routes.quiz_question.deleteQuizQuestionById
-import com.simbiri.presentation.routes.quiz_question.getAllQuizQuestions
-import com.simbiri.presentation.routes.quiz_question.getQuizQuestionById
-import com.simbiri.presentation.routes.quiz_question.getRandomQuizQuestions
-import com.simbiri.presentation.routes.quiz_question.insertQuestionsInBulk
-import com.simbiri.presentation.routes.quiz_question.upsertQuizQuestion
-import com.simbiri.presentation.routes.quiz_topics.deleteQuizTopicById
-import com.simbiri.presentation.routes.quiz_topics.getAllQuizTopics
-import com.simbiri.presentation.routes.quiz_topics.getQuizTopicById
-import com.simbiri.presentation.routes.quiz_topics.upsertQuizTopic
 import com.simbiri.presentation.routes.root
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.resources.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
+import presentation.routes.issueReportRoutes
+import presentation.routes.quizQuestionRoutes
+import presentation.routes.quizTopicRoutes
 
 fun Application.configureRouting(){
     // we install the Resource plugin here which we used for type safe routing
@@ -39,23 +29,13 @@ fun Application.configureRouting(){
         root()
 
         //Quiz Questions
-        getAllQuizQuestions(quizRepository)
-        getRandomQuizQuestions(quizRepository)
-        upsertQuizQuestion(quizRepository)
-        insertQuestionsInBulk(quizRepository)
-        deleteQuizQuestionById(quizRepository)
-        getQuizQuestionById(quizRepository)
+        quizQuestionRoutes(quizRepository)
 
         // Quiz Topics
-        getAllQuizTopics(topicsRepository)
-        upsertQuizTopic(topicsRepository)
-        deleteQuizTopicById(topicsRepository)
-        getQuizTopicById(topicsRepository)
+        quizTopicRoutes(topicsRepository)
 
         // Issue Reports
-        getAllIssueReports(issueReportRepository)
-        insertIssueReport(issueReportRepository)
-        deleteIssueReportById(issueReportRepository)
+        issueReportRoutes(issueReportRepository)
 
         // static route for our image topics
         staticResources(

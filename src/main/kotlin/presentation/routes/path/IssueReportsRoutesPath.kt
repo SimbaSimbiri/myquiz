@@ -1,4 +1,4 @@
-package com.simbiri.presentation.routes.issue_reports
+package presentation.routes.path
 
 import io.ktor.resources.Resource
 

@@ -1,7 +1,6 @@
-package com.simbiri.presentation.routes.quiz_question
+package presentation.routes.path
 
-import io.ktor.resources.*
-
+import io.ktor.resources.Resource
 
 @Resource("/quiz/questions")
 class QuizQuestionRoutesPath(val topicCode: Int? = null) {

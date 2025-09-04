@@ -1,4 +1,4 @@
-package com.simbiri.presentation.routes.quiz_topics
+package presentation.routes.path
 
 import io.ktor.resources.Resource
 
