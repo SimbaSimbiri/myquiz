@@ -1,10 +1,5 @@
 package com.simbiri.presentation.config
 
-import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import com.simbiri.data.database.DatabaseFactory
-import com.simbiri.data.repository.IssueReportRepositoryImpl
-import com.simbiri.data.repository.QuizQuestionRepositoryImpl
-import com.simbiri.data.repository.QuizTopicRepositoryImpl
 import com.simbiri.domain.repository.IssueReportRepository
 import com.simbiri.domain.repository.QuizQuestionRepository
 import com.simbiri.domain.repository.QuizTopicRepository
@@ -21,18 +16,18 @@ import com.simbiri.presentation.routes.quiz_topics.getQuizTopicById
 import com.simbiri.presentation.routes.quiz_topics.upsertQuizTopic
 import com.simbiri.presentation.routes.root
 import io.ktor.server.application.*
-import io.ktor.server.http.content.staticResources
+import io.ktor.server.http.content.*
 import io.ktor.server.resources.*
 import io.ktor.server.routing.*
+import org.koin.ktor.ext.inject
 
 fun Application.configureRouting(){
     // we install the Resource plugin here which we used for type safe routing
     install(Resources)
 
-    val mongoDatabase: MongoDatabase  = DatabaseFactory.create()
-    val quizRepository : QuizQuestionRepository = QuizQuestionRepositoryImpl(mongoDatabase)
-    val topicsRepository : QuizTopicRepository = QuizTopicRepositoryImpl(mongoDatabase)
-    val issueReportRepository : IssueReportRepository = IssueReportRepositoryImpl(mongoDatabase)
+    val quizRepository : QuizQuestionRepository by inject()
+    val topicsRepository : QuizTopicRepository by inject()
+    val issueReportRepository : IssueReportRepository by inject()
 
     // routes tell our server what data to return once a specific endpoint is hit
     // if you have any route in the backend app then all mus be defined inside this routing block
@@ -63,9 +58,6 @@ fun Application.configureRouting(){
             remotePath = "/images",
             basePackage = "images"
         )
-
-
-
     }
 
 }
