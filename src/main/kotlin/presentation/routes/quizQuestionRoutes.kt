@@ -23,10 +23,7 @@ fun Route.quizQuestionRoutes(quizRepository: QuizQuestionRepository) {
         quizRepository.deleteQuizQuestionById(path.questionId)
             .onSuccess {
                 // for successful deletes we usually return no content and the code 204
-                call.respond(
-                    message = "Question with id ${path.questionId} removed successfully",
-                    status = HttpStatusCode.NoContent
-                )
+                call.respond(HttpStatusCode.NoContent)
             }
             .onFailure { error ->
                 respondWithError(error)

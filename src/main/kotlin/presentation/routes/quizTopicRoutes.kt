@@ -19,7 +19,7 @@ fun Route.quizTopicRoutes(quizTopicRepository: QuizTopicRepository) {
     delete<QuizTopicRoutesPath.ById> { path->
         quizTopicRepository.deleteTopicById(path.topicId)
             .onSuccess {
-                call.respond(message = "Quiz Topic Deleted Successfully", status= HttpStatusCode.NoContent)
+                call.respond(HttpStatusCode.NoContent)
             }
             .onFailure { error ->
                 respondWithError(error)

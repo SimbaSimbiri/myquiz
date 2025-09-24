@@ -21,7 +21,7 @@ fun Application.configureRouting(){
     val topicsRepository : QuizTopicRepository by inject()
     val issueReportRepository : IssueReportRepository by inject()
 
-    // routes tell our server what data to return once a specific endpoint is hit
+    // routes tell our server what data to return/receive once a specific endpoint is hit
     // if you have any route in the backend app then all must be defined inside this routing block
     routing {
         // the get block in the below functions exposes the call class instance that will be used to either respond

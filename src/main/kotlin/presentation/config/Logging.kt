@@ -6,6 +6,7 @@ import org.slf4j.event.Level
 
 fun Application.configureLogging() {
     install(CallLogging){
+        // TRACE < DEBUG < INFO < WARN < ERROR.
         level = Level.DEBUG
     }
 }
